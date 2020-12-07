@@ -22,13 +22,25 @@ Resources:
             Method: POST
       Environment:
         Variables:
-          FROM_ADDRESS: dakota.lillie@icloud.com
-          TO_ADDRESS: dakota.lillie@icloud.com
-          SMTP_HOST: smtp.mail.me.com
+          FROM_ADDRESS: lauren.settembrino@gmail.com
+          TO_ADDRESS: lauren.settembrino@gmail.com
+          SMTP_HOST: smtp.gmail.com
           SMTP_PORT: "587"
       Policies:
       - SSMParameterReadPolicy:
           ParameterName: LaurenSettembrino/EMAIL_PASSWORD # Make sure you omit the leading slash
+  SendEmailOptionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: send-email-options/
+      Handler: send-email-options
+      Runtime: go1.x
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /send-email
+            Method: OPTIONS
 
 Outputs:
   SendEmailApi:

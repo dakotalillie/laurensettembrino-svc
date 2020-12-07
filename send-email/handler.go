@@ -14,7 +14,9 @@ func (h *handler) Run(request events.APIGatewayProxyRequest) (events.APIGatewayP
 	headers := make(map[string]string)
 	headers["Access-Control-Allow-Headers"] = "Content-Type"
 	headers["Access-Control-Allow-Methods"] = "OPTIONS,POST"
+	headers["Access-Control-Max-Age"] = "300"
 	headers["Content-Type"] = "text/html; charset=UTF-8"
+	headers["Vary"] = "Origin"
 
 	allowedOrigins := []string{"https://laurensettembrino.com", "https://www.laurensettembrino.com"}
 	for _, origin := range allowedOrigins {
@@ -22,6 +24,10 @@ func (h *handler) Run(request events.APIGatewayProxyRequest) (events.APIGatewayP
 			headers["Access-Control-Allow-Origin"] = origin
 			break
 		}
+	}
+
+	if headers["Access-Control-Allow-Origin"] == "" {
+		return events.APIGatewayProxyResponse{StatusCode: 403, Headers: headers, Body: "Invalid origin"}, nil
 	}
 
 	config, err := NewEmailConfig(request.Body, h.ssmSvc)
