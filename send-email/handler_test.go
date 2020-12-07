@@ -54,14 +54,12 @@ func TestHandler(t *testing.T) {
 		os.Unsetenv("FROM_ADDRESS")
 
 		h := handler{ssmSvc: mockedSsm{}}
-		res, err := h.Run(events.APIGatewayProxyRequest{})
+		res, _ := h.Run(events.APIGatewayProxyRequest{})
 
 		if res.StatusCode != 500 {
 			t.Fatalf("status code should be 500, got %v", res.StatusCode)
 		} else if res.Body != "Missing from address" {
 			t.Fatalf("response body should be \"Missing from address\", got %v", res.Body)
-		} else if err == nil {
-			t.Fatal("err should not be nil")
 		}
 	})
 
@@ -72,14 +70,12 @@ func TestHandler(t *testing.T) {
 		os.Unsetenv("TO_ADDRESS")
 
 		h := handler{ssmSvc: mockedSsm{}}
-		res, err := h.Run(events.APIGatewayProxyRequest{})
+		res, _ := h.Run(events.APIGatewayProxyRequest{})
 
 		if res.StatusCode != 500 {
 			t.Fatalf("status code should be 500, got %v", res.StatusCode)
 		} else if res.Body != "Missing to address" {
 			t.Fatalf("response body should be \"Missing to address\", got \"%v\"", res.Body)
-		} else if err == nil {
-			t.Fatal("err should not be nil")
 		}
 	})
 
@@ -90,14 +86,12 @@ func TestHandler(t *testing.T) {
 		os.Unsetenv("SMTP_HOST")
 
 		h := handler{ssmSvc: mockedSsm{}}
-		res, err := h.Run(events.APIGatewayProxyRequest{})
+		res, _ := h.Run(events.APIGatewayProxyRequest{})
 
 		if res.StatusCode != 500 {
 			t.Fatalf("status code should be 500, got %v", res.StatusCode)
 		} else if res.Body != "Missing host" {
 			t.Fatalf("response body should be \"Missing host\", got \"%v\"", res.Body)
-		} else if err == nil {
-			t.Fatal("err should not be nil")
 		}
 	})
 
@@ -108,14 +102,12 @@ func TestHandler(t *testing.T) {
 		os.Unsetenv("SMTP_PORT")
 
 		h := handler{ssmSvc: mockedSsm{}}
-		res, err := h.Run(events.APIGatewayProxyRequest{})
+		res, _ := h.Run(events.APIGatewayProxyRequest{})
 
 		if res.StatusCode != 500 {
 			t.Fatalf("status code should be 500, got %v", res.StatusCode)
 		} else if res.Body != "Missing port" {
 			t.Fatalf("response body should be \"Missing port\", got \"%v\"", res.Body)
-		} else if err == nil {
-			t.Fatal("err should not be nil")
 		}
 	})
 
@@ -124,14 +116,12 @@ func TestHandler(t *testing.T) {
 		defer teardown(t)
 
 		h := handler{ssmSvc: mockedSsm{}}
-		res, err := h.Run(events.APIGatewayProxyRequest{Body: "{\"test: wut}"})
+		res, _ := h.Run(events.APIGatewayProxyRequest{Body: "{\"test: wut}"})
 
 		if res.StatusCode != 400 {
 			t.Fatalf("status code should be 400, got %v", res.StatusCode)
 		} else if res.Body != "Unable to unmarshal request body" {
 			t.Fatalf("response body should be \"Unable to unmarshal request body\", got \"%v\"", res.Body)
-		} else if err == nil {
-			t.Fatal("err should not be nil")
 		}
 	})
 
@@ -146,15 +136,13 @@ func TestHandler(t *testing.T) {
 			}
 
 			h := handler{ssmSvc: mockedSsm{}}
-			res, err := h.Run(events.APIGatewayProxyRequest{Body: string(reqBody)})
+			res, _ := h.Run(events.APIGatewayProxyRequest{Body: string(reqBody)})
 
 			expectedResBody := fmt.Sprintf("Missing %s", key)
 			if res.StatusCode != 400 {
 				t.Fatalf("status code should be 400, got %v", res.StatusCode)
 			} else if res.Body != expectedResBody {
 				t.Fatalf("response body should be \"%v\", got \"%v\"", expectedResBody, res.Body)
-			} else if err == nil {
-				t.Fatal("err should not be nil")
 			}
 		})
 	}
@@ -169,15 +157,13 @@ func TestHandler(t *testing.T) {
 
 		mSsm := mockedSsm{GetParameterError: errors.New("Oops")}
 		h := handler{ssmSvc: mSsm}
-		res, err := h.Run(events.APIGatewayProxyRequest{Body: string(reqBody)})
+		res, _ := h.Run(events.APIGatewayProxyRequest{Body: string(reqBody)})
 
 		expectedResBody := "Unable to get email password"
 		if res.StatusCode != 502 {
 			t.Fatalf("status code should be 502, got %v", res.StatusCode)
 		} else if res.Body != expectedResBody {
 			t.Fatalf("response body should be \"%v\", got \"%v\"", expectedResBody, res.Body)
-		} else if err == nil {
-			t.Fatal("err should not be nil")
 		}
 	})
 }
