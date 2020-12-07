@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template for laurensettembrino-svc
+
+Globals:
+  Function:
+    Timeout: 15
+
+Resources:
+  SendEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: send-email/
+      Handler: send-email
+      Runtime: go1.x
+      Tracing: Active
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /send-email
+            Method: POST
+      Environment:
+        Variables:
+          FROM_ADDRESS: dakota.lillie@icloud.com
+          TO_ADDRESS: dakota.lillie@icloud.com
+          SMTP_HOST: smtp.mail.me.com
+          SMTP_PORT: "587"
+      Policies:
+      - SSMParameterReadPolicy:
+          ParameterName: LaurenSettembrino/EMAIL_PASSWORD # Make sure you omit the leading slash
+
+Outputs:
+  SendEmailApi:
+    Description: "API Gateway endpoint URL for Prod environment for Send Email Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/send-email"
+  SendEmailFunction:
+    Description: "Send Email Function ARN"
+    Value: !GetAtt SendEmailFunction.Arn
+  SendEmailFunctionIamRole:
+    Description: "Implicit IAM Role created for Send Email Function"
+    Value: !GetAtt SendEmailFunctionRole.Arn
