@@ -13,9 +13,14 @@ func (h *handler) Run(request events.APIGatewayProxyRequest) (events.APIGatewayP
 	headers["Access-Control-Max-Age"] = "300"
 	headers["Vary"] = "Origin"
 
+	requestOrigin := request.Headers["origin"]
+	if requestOrigin == "" {
+		requestOrigin = request.Headers["Origin"]
+	}
+
 	allowedOrigins := []string{"https://laurensettembrino.com", "https://www.laurensettembrino.com"}
 	for _, origin := range allowedOrigins {
-		if request.Headers["Origin"] == origin {
+		if requestOrigin == origin {
 			headers["Access-Control-Allow-Origin"] = origin
 			break
 		}
