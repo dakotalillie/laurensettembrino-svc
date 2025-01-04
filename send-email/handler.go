@@ -1,13 +1,13 @@
 package main
 
 import (
+	"context"
+
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
+	"github.com/aws/aws-sdk-go-v2/config"
 )
 
-type handler struct {
-	ssmSvc ssmiface.SSMAPI
-}
+type handler struct{}
 
 func (h *handler) Run(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	// These values were copied from here: https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-cors.html
@@ -35,7 +35,14 @@ func (h *handler) Run(request events.APIGatewayProxyRequest) (events.APIGatewayP
 		return events.APIGatewayProxyResponse{StatusCode: 403, Headers: headers, Body: "Invalid origin"}, nil
 	}
 
-	config, err := NewEmailConfig(request.Body, h.ssmSvc)
+	ctx := context.Background()
+
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: 500, Headers: headers, Body: err.Error()}, nil
+	}
+
+	config, err := NewEmailConfig(ctx, request.Body, cfg)
 	if codedError, ok := err.(*codedError); ok {
 		return events.APIGatewayProxyResponse{StatusCode: codedError.Code, Headers: headers, Body: codedError.Error()}, nil
 	}

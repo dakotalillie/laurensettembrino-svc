@@ -1,12 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ssm"
-	"github.com/aws/aws-sdk-go/service/ssm/ssmiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
 // EmailConfig is a struct which contains the requisite values for sending an email.
@@ -24,7 +24,7 @@ type EmailConfig struct {
 
 // NewEmailConfig creates a new email config, drawing values from environment variables, the request
 // body, and SSM in AWS.
-func NewEmailConfig(reqBody string, ssmSvc ssmiface.SSMAPI) (EmailConfig, error) {
+func NewEmailConfig(ctx context.Context, reqBody string, awsCfg aws.Config) (EmailConfig, error) {
 	config := EmailConfig{}
 
 	from := os.Getenv("FROM_ADDRESS")
@@ -59,7 +59,11 @@ func NewEmailConfig(reqBody string, ssmSvc ssmiface.SSMAPI) (EmailConfig, error)
 		}
 	}
 
-	res, err := ssmSvc.GetParameter(&ssm.GetParameterInput{Name: aws.String("/LaurenSettembrino/EMAIL_PASSWORD"), WithDecryption: aws.Bool(true)})
+	ssmClient := ssm.NewFromConfig(awsCfg)
+	res, err := ssmClient.GetParameter(ctx, &ssm.GetParameterInput{
+		Name:           aws.String("/LaurenSettembrino/EMAIL_PASSWORD"),
+		WithDecryption: aws.Bool(true),
+	})
 	if err != nil {
 		return config, &codedError{Code: 502, Message: "Unable to get email password"}
 	}

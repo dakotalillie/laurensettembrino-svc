@@ -14,9 +14,9 @@ type testCase struct {
 
 func TestHandler(t *testing.T) {
 	testCases := []testCase{
-		testCase{Input: "https://laurensettembrino.com", Output: "https://laurensettembrino.com"},
-		testCase{Input: "https://www.laurensettembrino.com", Output: "https://www.laurensettembrino.com"},
-		testCase{Input: "something random", Output: ""},
+		{Input: "https://laurensettembrino.com", Output: "https://laurensettembrino.com"},
+		{Input: "https://www.laurensettembrino.com", Output: "https://www.laurensettembrino.com"},
+		{Input: "something random", Output: ""},
 	}
 
 	for _, tc := range testCases {

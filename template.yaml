@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: SAM Template for laurensettembrino-svc
 
@@ -11,8 +11,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: send-email/
-      Handler: send-email
-      Runtime: go1.x
+      Handler: bootstrap
+      Runtime: provided.al2023
       Tracing: Active
       Events:
         CatchAll:
@@ -27,14 +27,16 @@ Resources:
           SMTP_HOST: smtp.gmail.com
           SMTP_PORT: "587"
       Policies:
-      - SSMParameterReadPolicy:
-          ParameterName: LaurenSettembrino/EMAIL_PASSWORD # Make sure you omit the leading slash
+        - SSMParameterReadPolicy:
+            ParameterName: LaurenSettembrino/EMAIL_PASSWORD # Make sure you omit the leading slash
+    Metadata:
+      BuildMethod: makefile
   SendEmailOptionsFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: send-email-options/
-      Handler: send-email-options
-      Runtime: go1.x
+      Handler: bootstrap
+      Runtime: provided.al2023
       Events:
         CatchAll:
           Type: Api
